@@ -32,7 +32,8 @@ typedef pcl::PointCloud<PointT> PointCloudT;
 sensor_msgs::CameraInfo camera_info_global;
 bool is_camera_info_global = false;
 
-ros::Publisher pub;
+ros::Publisher encodedImagePublisher;
+ros::Publisher pclPublisher;
 
 void extractPerson(PointCloudT::Ptr cloud)
 {
@@ -236,16 +237,6 @@ void extractPerson(PointCloudT::Ptr cloud)
 
 void imageCallback(const sensor_msgs::ImageConstPtr& image_msg, const sensor_msgs::CameraInfoConstPtr& info_msg)
 {
-  // try
-  // {
-  //   cv::imshow("view", cv_bridge::toCvShare(image_msg, "bgr8")->image);
-  //   cv::waitKey(30);
-  // }
-  // catch (cv_bridge::Exception& e)
-  // {
-  //   ROS_ERROR("Could not convert from '%s' to 'bgr8'.", image_msg->encoding.c_str());
-  // }
-  std::cout << "Image: " << info_msg->width << "X" << info_msg->height << std::endl;
   camera_info_global = *info_msg;
   is_camera_info_global = true;
 }
@@ -272,7 +263,8 @@ int main(int argc, char **argv)
 
   // Publish the data
   // pub = nh.advertise<sensor_msgs::PointCloud2> ("output", 1);
-  pub = nh.advertise<sensor_msgs::Image> ("output", 1);
+  encodedImagePubisher = nh.advertise<sensor_msgs::Image> ("/person", 1);
+  pclPubisher = nh.advertise<sensor_msgs::Image> ("/points", 1);
   
   // Subscribe data (one)
   ros::Subscriber sub = nh.subscribe<PointCloudT>("/camera/depth_registered/points", 1, pclCallback);
